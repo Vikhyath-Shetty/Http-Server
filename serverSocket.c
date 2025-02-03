@@ -29,9 +29,9 @@ int main(int argc, char *argv[])
   printf("\nWinsock initialized successfully");
 
   // Socket creation
-  SOCKET serverSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  
-  if (serverSock == INVALID_SOCKET)
+  SOCKET server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+  if (server_socket == INVALID_SOCKET)
   {
     error("\nSocket creation failed");
   }
@@ -42,11 +42,26 @@ int main(int argc, char *argv[])
   address.sin_family = AF_INET;
   address.sin_addr.s_addr = inet_addr("127.0.0.1");
   address.sin_port = htons(atoi(argv[1]));
-  if (bind(serverSock, (struct sockaddr *)&address, sizeof(address)) != 0)
+  if (bind(server_socket, (struct sockaddr *)&address, sizeof(address)) != 0)
   {
     error("\nBinding failed");
   }
   printf("\nSocket has been bound");
+
+  // listening for request
+  if (listen(server_socket, SOMAXCONN) != 0)
+  {
+    error("\nFailed to listen");
+  }
+  printf("\nListening to incoming request at %s", argv[1]);
+
+  //accepting request
+  SOCKET new_socket = accept(server_socket,NULL,NULL);
+  if(new_socket == INVALID_SOCKET){
+    printf("\nFailed to accept connection:%d",WSAGetLastError());
+  }
+  printf("\nAccepted a client");
+
 
   WSACleanup();
   return 0;
