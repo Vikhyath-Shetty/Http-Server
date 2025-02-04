@@ -34,7 +34,6 @@ int main(int argc, char *argv[])
   {
     error("\nSocket creation failed");
   }
-  printf("\nSocket created successfully");
 
   // Socket binding
   struct sockaddr_in address;
@@ -47,7 +46,6 @@ int main(int argc, char *argv[])
   {
     error("\nBinding failed");
   }
-  printf("\nSocket has been bound");
 
   // listening for request
   if (listen(server_socket, 5) < 0)
@@ -64,23 +62,40 @@ int main(int argc, char *argv[])
   }
   printf("\nAccepted a connection");
 
+  // recieving request
+  char request[1024] = {0};
+  size_t bytes_recieved = recv(new_socket, request, sizeof(request) - 1, 0);
+  if (bytes_recieved < 0)
+  {
+    fprintf(stderr, "\nFailed to recieve request from client");
+  }
+  request[bytes_recieved] = '\0';
+  printf("\nRequest is : %s", request);
+
   // sending response
-  char *message = "Hello! client\n";
-  if (send(new_socket, message, strlen(message), 0) < 0)
+  const char *html_content = "<html><body><h1>Hello Client!</h1></body></html>";
+  int content_length = strlen(html_content);
+
+  char response[2048];
+  int header_length = snprintf(
+      response, sizeof(response),
+      "HTTP/1.0 200 OK\r\n"
+      "Content-Type: text/html\r\n"
+      "Content-Length: %d\r\n\r\n",
+      content_length);
+
+  strcat(response, html_content);
+
+  if (send(new_socket, response, header_length + content_length, 0) < 0)
   {
     fprintf(stderr, "\nFailed to send response");
   }
-  printf("\nResponse sent to client");
 
-  // recieving request
-  char buffer[1024] = {0};
-  if (recv(new_socket, buffer, sizeof(buffer) - 1, 0) < 0)
-  {
-    fprintf(stderr, "\nFailed to recieve response from client");
-  }
+  printf("\nResponse sent successfully");
 
-  buffer[1024] = '\0';
-  printf("\nclient response:%s", buffer);
+  closesocket(new_socket);
+  closesocket(server_socket);
   WSACleanup();
+
   return 0;
 }
