@@ -1,16 +1,23 @@
-#include<stdlib.h>
-#include<stdio.h>
-#include<stdint.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
 #include "server.h"
 
-int main(int argc, char* argv[]){
-  uint16_t port = atoi(argv[1]);
-  if (argc != 2 || port == 0)
+int main(int argc, char *argv[])
+{
+  if (argc != 2)
   {
-    fprintf(stderr, "\nUsage: ./[name|a].exe <PORT>");
-    exit(EXIT_FAILURE);
+    fprintf(stderr, "Usage: ./[a|name].exe <port>");
+    return EXIT_FAILURE;
   }
-  start_server(port);
-  close_server();
-  return 0;
+
+  char *endptr;
+  long port = strtol(argv[1], &endptr, 10);
+  if (*endptr != '\0' || port <= 0 || port > 65535)
+  {
+    fprintf(stderr, "\nPort number is invalid, the range is 1-65535");
+    return EXIT_FAILURE;
+  }
+  int serverStatus = start_server((uint16_t)port);
+  return serverStatus;
 }
