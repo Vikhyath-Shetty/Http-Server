@@ -8,7 +8,7 @@ SOCKET init_socket(uint16_t port)
   WSADATA wsa;
   if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
   {
-    error_exit("Failed to initialize winsock", 0);
+    error_exit("Failed to initialize winsock", 0, 0, 0);
   }
   printf("\nWinsock initialized successfully");
 
@@ -16,7 +16,7 @@ SOCKET init_socket(uint16_t port)
 
   if (server_socket == INVALID_SOCKET)
   {
-    error_exit("Socket creation failed", 1);
+    error_exit("Socket creation failed", 0, 0, WINSOCK_CLEAN);
   }
 
   struct sockaddr_in address;
@@ -27,14 +27,13 @@ SOCKET init_socket(uint16_t port)
 
   if (bind(server_socket, (struct sockaddr *)&address, sizeof(address)) == SOCKET_ERROR)
   {
-    error_exit("Socket binding failed", 1);
+    error_exit("Socket binding failed", 0, server_socket, SERVER_SOCKET | WINSOCK_CLEAN);
   }
 
   if (listen(server_socket, 5) == SOCKET_ERROR)
   {
-    error_exit("Failed to start server", 1);
+    error_exit("Failed to start server", 0, server_socket, SERVER_SOCKET | WINSOCK_CLEAN);
   }
-
   return server_socket;
 }
 
