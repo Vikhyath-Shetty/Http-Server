@@ -18,6 +18,6 @@ int main(int argc, char *argv[])
     fprintf(stderr, "\nPort number is invalid, the range is 1-65535");
     return EXIT_FAILURE;
   }
-  int serverStatus = start_server((uint16_t)port);
-  return serverStatus;
+  start_server((uint16_t)port);
+  return 0;
 }

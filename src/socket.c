@@ -1,15 +1,6 @@
 #include <stdio.h>
+#include "util.h"
 #include "socket.h"
-
-int error_exit(char *message, uint8_t cleanup)
-{
-  fprintf(stderr, "\n%s:%d", message, WSAGetLastError());
-  if (cleanup)
-  {
-    WSACleanup();
-  }
-  exit(EXIT_FAILURE);
-}
 
 SOCKET init_socket(uint16_t port)
 {
@@ -30,7 +21,7 @@ SOCKET init_socket(uint16_t port)
 
   struct sockaddr_in address;
   address.sin_family = AF_INET;
-  address.sin_addr.s_addr = inet_addr("127.0.0.1");
+  address.sin_addr.s_addr = INADDR_ANY;
   address.sin_port = htons(port);
   memset(&address.sin_zero, 0, 8);
 
