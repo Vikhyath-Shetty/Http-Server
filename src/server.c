@@ -4,26 +4,16 @@
 #include <stdlib.h>
 #include "socket.h"
 
-
-
-
 int start_server(uint16_t port)
 {
 
   SOCKET server_socket = init_socket(port);
-  if(server_socket == SOCKET_ERROR || server_socket == INVALID_SOCKET){
+  if (server_socket == INVALID_SOCKET)
+  {
     return EXIT_FAILURE;
   }
-  printf("\nServer is listening to port: %d",port);
+  printf("\nServer is listening to port: %d", port);
 
-
-
-
-
-
-  
-
-  // accepting connection
   SOCKET client_socket = accept(server_socket, NULL, NULL);
   if (client_socket == INVALID_SOCKET)
   {
@@ -31,7 +21,6 @@ int start_server(uint16_t port)
   }
   printf("\nAccepted a connection");
 
-  // recieving request
   char request[1024] = {0};
   int bytes_recieved = recv(client_socket, request, sizeof(request) - 1, 0);
   if (bytes_recieved == SOCKET_ERROR)
@@ -41,7 +30,6 @@ int start_server(uint16_t port)
   request[bytes_recieved] = '\0';
   printf("\nRequest is : %s", request);
 
-  // sending response
   const char *html_content = "<html><body><h1>Hello Client!</h1></body></html>";
   int content_length = strlen(html_content);
 
@@ -62,6 +50,6 @@ int start_server(uint16_t port)
 
   printf("\nResponse sent successfully");
 
-  close_server(client_socket, server_socket);
+  close_server(server_socket);
   return 0;
 }

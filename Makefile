@@ -31,7 +31,7 @@ $(TARGET): $(OBJS)
 
 # Rule to compile .c files into .o files, tracking dependencies
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
-	@if not exist "$(BUILD_DIR)" mkdir "$(BUILD_DIR)"
+	@mkdir -p $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Include dependency files
@@ -46,3 +46,4 @@ clean:
 # Run the server (usage: make run PORT=5000)
 run: $(TARGET)
 	./$(TARGET) $(PORT)
+

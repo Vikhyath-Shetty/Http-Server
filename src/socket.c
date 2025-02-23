@@ -1,34 +1,33 @@
-#include<stdio.h>
+#include <stdio.h>
 #include "socket.h"
 
-int error_exit(char* message, uint8_t cleanup){
-  fprintf(stderr,"\n%s:%d",WSAGetLastError());
-  if(cleanup){
+int error_exit(char *message, uint8_t cleanup)
+{
+  fprintf(stderr, "\n%s:%d", message, WSAGetLastError());
+  if (cleanup)
+  {
     WSACleanup();
   }
   exit(EXIT_FAILURE);
 }
 
-SOCKET init_socket(uint16_t port){
+SOCKET init_socket(uint16_t port)
+{
 
-  // winsock initialization 
   WSADATA wsa;
   if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
   {
-    error_exit("Failed to initialize winsock",0);
+    error_exit("Failed to initialize winsock", 0);
   }
   printf("\nWinsock initialized successfully");
 
-  // Socket creation
   SOCKET server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
   if (server_socket == INVALID_SOCKET)
   {
-    fprintf(stderr,"\nSocket creation failed: %d",WSAGetLastError());
-    return INVALID_SOCKET;
+    error_exit("Socket creation failed", 1);
   }
 
-  // Socket binding
   struct sockaddr_in address;
   address.sin_family = AF_INET;
   address.sin_addr.s_addr = inet_addr("127.0.0.1");
@@ -37,16 +36,20 @@ SOCKET init_socket(uint16_t port){
 
   if (bind(server_socket, (struct sockaddr *)&address, sizeof(address)) == SOCKET_ERROR)
   {
-    fprintf(stderr,"\nSocket binding failed: %d",WSAGetLastError());
-    return SOCKET_ERROR;
+    error_exit("Socket binding failed", 1);
   }
 
-  // listening for request
   if (listen(server_socket, 5) == SOCKET_ERROR)
   {
-    fprintf(stderr,"\nFailed to start server: %d",WSAGetLastError());
-    return SOCKET_ERROR;
+    error_exit("Failed to start server", 1);
   }
 
   return server_socket;
+}
+
+void close_server(SOCKET server_socket)
+{
+  if (closesocket(server_socket) == SOCKET_ERROR)
+    fprintf(stderr, "\nFailed to close server: %d", WSAGetLastError());
+  WSACleanup();
 }
